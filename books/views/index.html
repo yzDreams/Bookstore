@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="appModule">
+<head>
+    <meta charset="UTF-8">
+    <title>珠峰书店</title>
+    <base href="/"/>
+    <!--<link rel="stylesheet" href="node_modules/bootstrap/dist/css/bootstrap.css">-->
+    <link rel="stylesheet" href="/bootstrap/dist/css/bootstrap.css">
+</head>
+<body>
+<nav class="navbar navbar-inverse" role="navigation">
+    <div class="container-fluid">
+        <div class="navbar-header none">
+            <a class="navbar-brand" href="###">珠峰书店</a>
+        </div>
+        <div>
+            <ul class="nav navbar-nav">
+                <li><a href="/">首页</a></li>
+                <li><a href="bookList">数目列表</a></li>
+                <li><a href="bookAdd">增加图书</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+<div ng-view></div>
+<!--<script src="node_modules/angular/angular.js"></script>
+<script src="node_modules/angular-resource/angular-resource.js"></script>
+<script src="node_modules/angular-route/angular-route.js"></script>-->
+<script src="/angular/angular.js"></script>
+<script src="/angular-resource/angular-resource.js"></script>
+<script src="/angular-route/angular-route.js"></script>
+<script>
+    var app = angular.module('appModule', ['ngResource', 'ngRoute']);
+    app.factory('$book', function ($resource) {
+        return $resource('/books/:id', null, {
+            update: {
+                method: 'PUT'
+            }
+        })
+    });
+    app.config(function ($routeProvider, $locationProvider) {
+        $locationProvider.html5Mode(true);//以html的方式解析路径
+        $routeProvider.when('/', {
+            templateUrl: 'template/index.html',
+            controller: 'indexCtrl'
+        }).when('/bookList', {
+            templateUrl: 'template/bookList.html',
+            controller: 'listCtrl'
+        }).when('/bookAdd', {
+            templateUrl: 'template/bookAdd.html',
+            controller: 'addCtrl'
+        }).when('/bookDetail/:bookId', {
+            templateUrl: 'template/bookDetail.html',
+            controller: 'detailCtrl'
+        }).otherwise('/');
+    });
+    app.controller('indexCtrl', ['$scope', function ($scope) {
+
+    }]);
+    app.controller('listCtrl', ['$scope', '$book', '$location', function ($scope, $book, $location) {
+        $scope.books = $book.query();//获取到所有的数目信息，绑定到bookList页面上
+//        console.log($scope.books)
+    }]);
+    app.controller('addCtrl', ['$scope', '$book', '$location', function ($scope, $book, $location) {
+        $scope.saveBook = function () {
+            $book.save($scope.newBook).$promise.then(function () {
+                $location.path('/bookList');//保存完成后，重新定位到列表页
+            })
+        }
+    }]);
+    app.controller('detailCtrl', ['$scope', '$book', '$location', '$routeParams', function ($scope, $book, $location, $routeParams) {
+        var id = $routeParams.bookId;
+        $scope.flag = true;
+        $book.get({id: id}).$promise.then(function (data) {
+            $scope.bookTop = data;
+            $scope.bookBottom = JSON.parse(JSON.stringify(data));
+        });
+        $scope.remove = function (id) {
+            $book.delete({id: id}).$promise.then(function () {
+                $location.path('/bookList')
+            })
+        };
+        $scope.saveChange = function () {
+            $scope.flag = true;
+            $book.update({id: id}, $scope.bookBottom).$promise.then(function (data) {
+                $scope.bookTop = data;
+            })
+        };
+        $scope.cancel = function () {
+            $scope.flag = true;
+            $scope.bookBottom = JSON.parse(JSON.stringify($scope.bookTop))
+        }
+    }]);
+
+</script>
+</body>
+</html>

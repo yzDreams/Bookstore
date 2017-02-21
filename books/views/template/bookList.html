@@ -1,0 +1,17 @@
+<!--<link rel="stylesheet" href="../node_modules/bootstrap/dist/css/bootstrap.css">-->
+
+<div class="panel panel-success col-md-4 col-lg-offset-1" ng-repeat="book in books track by $index">
+    <div class="panel-heading">书名：{{book.bookName}}</div>
+    <div class="panel-body text-center">
+        <img ng-src={{book.bookCover}} alt="">
+    </div>
+    <div class="panel-footer">价格：{{book.bookPrice}}
+        <a href="bookDetail/{{book._id}}" class="btn btn-success" >详细信息</a>
+    </div>
+</div>
+<style>
+    .panel-body img{
+        width: 200px;
+        height: 200px;
+    }
+</style>
